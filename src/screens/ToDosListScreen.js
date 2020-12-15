@@ -19,9 +19,9 @@ const ToDosListScreen = ({ navigation }) => {
       await updateToDoStatus(id, !status);
     };
 
-    if (!toDos){
-      return (<Text>waiting</Text>)
-    }
+   // if (!toDos){
+   //   return (<Text>waiting</Text>)
+    //}
 
     return (
       <Container style={styles.container}>
