@@ -27,10 +27,10 @@ export default function App() {
       <ToDosContextProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="ToDosList">
-            <Stack.Screen name="ToDosList" component={ToDosListScreen}/>
-            <Stack.Screen name="ToDoCreate" component={ToDoCreateScreen}/>
-            <Stack.Screen name="ToDoModify" component={ToDoCreateScreen}/>
-            <Stack.Screen name="ToDoProgress" component={ToDosProgressScreen}/>
+            <Stack.Screen name="ToDosList" component={ToDosListScreen} options={{headerShown:false}}/>
+            <Stack.Screen name="ToDoCreate" component={ToDoCreateScreen} options={{headerShown:false}}/>
+            <Stack.Screen name="ToDoModify" component={ToDoModifyScreen} options={{headerShown:false}}/>
+            <Stack.Screen name="ToDoProgress" component={ToDosProgressScreen} options={{headerShown:false}}/>
           </Stack.Navigator>
         </NavigationContainer>
       </ToDosContextProvider>

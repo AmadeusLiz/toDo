@@ -6,7 +6,7 @@ const db = SQLite.openDatabase("todolist.db");
 /* DATOS
     nombre de la base de datos -> todolist
     nombre de la tabla -> todos
-    campos -> todo (tarea por hacer, text), status (pendiente, finalizada, numero (0,1))
+    campos -> todo (tarea por hacer, boolean), status (pendiente, finalizada (0,1))
 */
 //Funcionalidades de la base de datos
 
@@ -34,17 +34,17 @@ const getToDos = (setToDosFunction) => {
 const getToDoById = (id, setToDoFunction) => {
   db.transaction((tx) => {
     tx.executeSql(
-      "select * from todos where id = ?",
+      "select * from todos where id=?",
       [id],
       (_, { rows: { _array } }) => {
         setToDoFunction(_array);
       },
       (_t, error) => {
-        console.log("Error al momento de obtener la tarea por hacer");
+        console.log("Error al momento de obtener el ToDo por ID");
         console.log(error);
       },
       (_t, _success) => {
-        console.log("Tarea obtenida");
+        console.log("ToDo por ID obtenido");
       }
     );
   });
@@ -61,6 +61,62 @@ const insertToDos = async (toDo, succesFunction) => {
     },
     (_t, error) => {
       console.log("ERROR al momento de insertar las tareas por hacer");
+      console.log(error);
+    },
+    (_t, _success) => {
+      succesFunction;
+    }
+  );
+};
+
+//Modificar Status
+const updateToDoStatus = async (id, status, succesFunction) => {
+  db.transaction(
+    (tx) => {
+      tx.executeSql("update todos set status=? where id=?", [
+        status,
+        id
+      ]);
+    },
+    (_t, error) => {
+      console.log("ERROR al momento de cambiar el estado del ToDo");
+      console.log(error);
+    },
+    (_t, _success) => {
+      succesFunction;
+    }
+  );
+};
+
+//Modificar contenido del ToDo
+const updateToDoContent = async (id, toDo, succesFunction) => {
+  db.transaction(
+    (tx) => {
+      tx.executeSql("update todos set todo=? where id=?", [
+        toDo,
+        id
+      ]);
+    },
+    (_t, error) => {
+      console.log("ERROR al momento de cambiar el contenido del ToDo");
+      console.log(error);
+    },
+    (_t, _success) => {
+      succesFunction;
+    }
+  );
+};
+
+//Borrar toDo
+const deleteToDo = async (id, succesFunction) => {
+  db.transaction(
+    (tx) => {
+      tx.executeSql("delete from todos where id=?", [
+        id
+      ]);
+    },
+    (_t, error) => {
+      console.log("ERROR al momento de eliminar el ToDo");
       console.log(error);
     },
     (_t, _success) => {
@@ -93,7 +149,7 @@ const setupDatabaseTableAsync = async () => {
     db.transaction(
       (tx) => {
         tx.executeSql(
-          "create table if not exists todos (id integer primary key autoincrement, todo text not null, status int not null);"
+          "create table if not exists todos (id integer primary key autoincrement, todo text not null, status boolean not null);"
         );
       },
       (_t, error) => {
@@ -114,7 +170,7 @@ const setupToDosAsync = async () => {
   return new Promise((resolve, reject) => {
     db.transaction(
       (tx) => {
-        tx.executeSql("insert into todos (todo, status) values (?, 0)", [
+        tx.executeSql("insert into todos (todo, status) values (?, 1)", [
           "Bienvenido a ToDo list!"
         ]);
       },
@@ -129,11 +185,57 @@ const setupToDosAsync = async () => {
     );
   });
 };
+
+//Contar el total de tareas
+const getTotalToDos = (setTotalToDos) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "select count(*) total from todos",
+      [],
+      (_, { rows: { _array } }) => {
+        setTotalToDos(_array);
+      },
+      (_t, error) => {
+        console.log("ERROR al momento de obtener el total de tareas");
+        console.log(error);
+      },
+      (_t, _success) => {
+        console.log("Total de tareas obtenido!");
+      }
+    );
+  });
+};
+
+//Contar el total de tareas realizadas
+const getCompletedToDos = (setCompletedToDos) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "select count(*) total from todos where status=1",
+      [],
+      (_, { rows: { _array } }) => {
+        setCompletedToDos(_array);
+      },
+      (_t, error) => {
+        console.log("ERROR al momento de obtener el total de tareas realizadas");
+        console.log(error);
+      },
+      (_t, _success) => {
+        console.log("Total de tareas realizadas obtenido!");
+      }
+    );
+  });
+};
+
 export const database = {
   getToDos,
   getToDoById,
   insertToDos,
   dropDatabaseTableAsync,
   setupDatabaseTableAsync,
-  setupToDosAsync
+  setupToDosAsync,
+  getTotalToDos,
+  getCompletedToDos,
+  updateToDoStatus,
+  updateToDoContent,
+  deleteToDo
 };
